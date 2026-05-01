@@ -1,0 +1,20 @@
+{
+	"name": "PassPlay",
+	"short_name": "passplay",
+	"start_url": "/",
+	"display": "standalone",
+	"theme_color": "#ffffff",
+	"background_color": "#000000",
+	"icons": [
+		{
+			"sizes": "192x192",
+			"src": "192x192.webp",
+			"type": "image/webp"
+		},
+		{
+			"sizes": "512x512",
+			"src": "512x512.webp",
+			"type": "image/webp"
+		}
+	]
+}
