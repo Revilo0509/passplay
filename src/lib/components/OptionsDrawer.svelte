@@ -10,6 +10,10 @@
 			to: '/games'
 		},
 		{
+			name: 'Party',
+			to: '/party'
+		},
+		{
 			name: 'Settings',
 			to: '/settings'
 		}
