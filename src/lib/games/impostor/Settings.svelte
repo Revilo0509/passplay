@@ -1,6 +1,6 @@
 <script lang="ts">
 	import NumberInput from '$lib/components/NumberInput.svelte';
-	import { getPlayerCount, players } from '$lib/state/party.svelte';
+	import { getPlayerCount, players, type Player } from '$lib/state/party.svelte';
 	import { start } from '$lib/state/game.svelte';
 	import { fetchCategories } from '$lib/services/api';
 	import * as Select from '$lib/components/ui/select/index.js';
@@ -38,7 +38,7 @@
 	);
 
 	function handleStart() {
-		const impostors: { name: string }[] = [];
+		const impostors: Player[] = [];
 		const allPlayers = [...players.current];
 		for (let i = 0; i < impostorCount; i++) {
 			const index = Math.floor(Math.random() * allPlayers.length);
@@ -52,9 +52,9 @@
 			impostorCount,
 			selectedCategory: category,
 			impostors,
-			impostorsKnowEachOther,
-			showHintToImpostor,
-			showCategoryToImpostor
+			impostorsKnowEachOther: impostorsKnowEachOther.current,
+			showHintToImpostor: showHintToImpostor.current,
+			showCategoryToImpostor: showCategoryToImpostor.current
 		});
 	}
 </script>

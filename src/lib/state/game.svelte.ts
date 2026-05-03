@@ -2,16 +2,18 @@ import { PersistedState } from 'runed';
 import { GameStage } from '$lib/games/GameModule';
 import type { Player } from './party.svelte';
 
+export interface ImpostorGameData {
+	type: 'impostor';
+	impostorCount: number;
+	selectedCategory: string;
+	impostors: Player[];
+	impostorsKnowEachOther: boolean;
+	showHintToImpostor: boolean;
+	showCategoryToImpostor: boolean;
+}
+
 export type GameData =
-	| {
-			type: 'impostor';
-			impostorCount: number;
-			selectedCategory: string;
-			impostors: Player[];
-			impostorsKnowEachOther: boolean;
-			showHintToImpostor: boolean;
-			showCategoryToImpostor: boolean;
-	  }
+	| ImpostorGameData
 	| { type: string; [key: string]: unknown };
 
 export const stage = new PersistedState<GameStage>('game-stage', GameStage.Settings);

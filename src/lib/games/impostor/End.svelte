@@ -1,10 +1,9 @@
 <script lang="ts">
-	import type { Player } from '$lib/state/party.svelte';
-	import { gameData, reset } from '$lib/state/game.svelte';
+	import { gameData, reset, type ImpostorGameData } from '$lib/state/game.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Center from '$lib/components/Center.svelte';
 
-	const data = $derived(gameData.current as { type: 'impostor'; impostors: Player[] });
+	const data = $derived(gameData.current as ImpostorGameData);
 	const impostors = $derived(data.impostors.map((p) => p.name));
 
 	const charDelay = 300;

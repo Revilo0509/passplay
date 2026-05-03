@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import { players, type Player } from '$lib/state/party.svelte';
-	import { gameData, end } from '$lib/state/game.svelte';
+	import { gameData, end, type ImpostorGameData } from '$lib/state/game.svelte';
 	import { fetchWord } from '$lib/services/api';
 	import * as Card from '$lib/components/ui/card/index';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index';
@@ -11,14 +11,7 @@
 	import { Check } from 'lucide-svelte';
 
 	const playerList = $derived(players.current);
-	const data = $derived(
-		gameData.current as {
-			type: 'impostor';
-			selectedCategory?: string;
-			impostors: Player[];
-			showHintToImpostor: boolean;
-		}
-	);
+	const data = $derived(gameData.current as ImpostorGameData);
 
 	let currentWord = $state<{ word: string; hint: string } | null>(null);
 	let isLoading = $state(true);
@@ -43,7 +36,7 @@
 	function confirmShow() {
 		if (!selectedPlayer) return;
 
-		const isImpostor = data.impostors.some((i) => i.name === selectedPlayer.name);
+		const isImpostor = data.impostors.some((i: Player) => i.name === selectedPlayer.name);
 		currentReveal = isImpostor ? 'hint' : 'word';
 
 		shownPlayers.add(selectedPlayer.name);
@@ -89,6 +82,12 @@
 				<span class="text-red-500">You are the impostor.</span>
 				{#if data.showHintToImpostor}
 					<span class="opacity-75">Hint: {currentWord?.hint}</span>
+				{/if}
+				{#if data.impostorCount > 1 && data.impostorsKnowEachOther}
+					<span class="opacity-75">Impostors: {data.impostors.map((i) => i.name).join(', ')}</span>
+				{/if}
+				{#if data.showCategoryToImpostor}
+					<span class="opacity-75">Category: {data.selectedCategory ?? 'All'}</span>
 				{/if}
 			{/if}
 			<AlertDialog.Footer>
