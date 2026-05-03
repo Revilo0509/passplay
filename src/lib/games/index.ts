@@ -1,5 +1,4 @@
-import { createImpostorGame } from './impostor/impostor.svelte';
+import type { GameModule } from './GameModule';
+import { ImpostorGame } from './impostor';
 
-export const games = {
-	impostor: createImpostorGame
-} as const;
+export const games: GameModule[] = [new ImpostorGame()];

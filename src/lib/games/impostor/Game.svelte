@@ -1,20 +1,22 @@
 <script lang="ts">
 	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
-	import { getPlayers } from '$lib/state/party.svelte';
-	import type { ImpostorGame } from './impostor.svelte';
+	import { players, type Player } from '$lib/state/party.svelte';
+	import { gameData, end } from '$lib/state/game.svelte';
+	import { fetchWord } from '$lib/services/api';
 	import * as Card from '$lib/components/ui/card/index';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index';
-	import { onMount, type Snippet } from 'svelte';
+	import { onMount } from 'svelte';
 
-	interface props {
-		game: ImpostorGame;
-	}
+	const playerList = $derived(players.current);
+	const data = $derived(gameData.current as { type: "impostor"; selectedCategory: string; impostors: Player[] });
 
-	let { game }: props = $props();
-	let players = $derived(getPlayers());
+	let currentWord = $state<{ word: string; hint: string } | null>(null);
+	let isLoading = $state(true);
 
-	let shownPlayers = $state<string[]>([]);
-	let currentShow = $state<Snippet>();
+	onMount(async () => {
+		currentWord = await fetchWord(data.selectedCategory);
+		isLoading = false;
+	});
 
 	let selectedPlayer = $state<string | null>(null);
 	let confirmDialogOpen = $state(false);
@@ -25,38 +27,15 @@
 		confirmDialogOpen = true;
 	}
 
+	let currentReveal = $state<"word" | "hint">("word");
+
 	function confirmShow() {
-		if (!selectedPlayer) return;
-		const isImpostor = game.impostors.some((i) => i.name === selectedPlayer);
-		currentShow = isImpostor ? impostorSnippet : innocentSnippet;
-		shownPlayers.push(selectedPlayer);
+		const isImpostor = data.impostors.some((i) => i.name === selectedPlayer);
+		currentReveal = isImpostor ? "hint" : "word";
 		confirmDialogOpen = false;
 		setTimeout(() => (revealDialogOpen = true), 0);
 	}
-
-	onMount(async () => {
-		try {
-			const response = await (
-				await fetch(
-					`https://www.wordgamedb.com/api/v2/words?category=${game.selectedCategory}&limit=1`
-				)
-			).json();
-			game.word = response.words[0].word;
-			game.hint = response.words[0].hint;
-		} catch (error) {
-			console.error('Failed to fetch word:', error);
-		}
-	});
 </script>
-
-{#snippet impostorSnippet()}
-	<span class="text-red-500">You are the impostor.</span>
-	<span class="opacity-75">Hint: {game.hint}</span>
-{/snippet}
-
-{#snippet innocentSnippet()}
-	<span>Word: {game.word}</span>
-{/snippet}
 
 <div class="flex flex-col gap-4 p-4">
 	<AlertDialog.Root>
@@ -69,7 +48,7 @@
 			</AlertDialog.Header>
 			<AlertDialog.Footer>
 				<AlertDialog.Cancel>Continue Playing</AlertDialog.Cancel>
-				<AlertDialog.Action variant="destructive" onclick={game.endGame}>
+				<AlertDialog.Action variant="destructive" onclick={end}>
 					End game
 				</AlertDialog.Action>
 			</AlertDialog.Footer>
@@ -90,8 +69,11 @@
 
 	<AlertDialog.Root bind:open={revealDialogOpen}>
 		<AlertDialog.Content>
-			{#if currentShow}
-				{@render currentShow()}
+			{#if currentReveal === "word"}
+				<span>Word: {currentWord?.word}</span>
+			{:else}
+				<span class="text-red-500">You are the impostor.</span>
+				<span class="opacity-75">Hint: {currentWord?.hint}</span>
 			{/if}
 			<AlertDialog.Footer>
 				<AlertDialog.Cancel variant="default">Okay.</AlertDialog.Cancel>
@@ -99,15 +81,19 @@
 		</AlertDialog.Content>
 	</AlertDialog.Root>
 
-	<div class="flex flex-col gap-4">
-		{#each players as player (player.name)}
-			<button onclick={() => openConfirm(player.name)} class="w-full text-left">
-				<Card.Root>
-					<Card.Content>
-						<span>{player.name}</span>
-					</Card.Content>
-				</Card.Root>
-			</button>
-		{/each}
-	</div>
+	{#if isLoading}
+		<p>Loading...</p>
+	{:else}
+		<div class="flex flex-col gap-4">
+			{#each playerList as player (player.name)}
+				<button onclick={() => openConfirm(player.name)} class="w-full text-left">
+					<Card.Root>
+						<Card.Content>
+							<span>{player.name}</span>
+						</Card.Content>
+					</Card.Root>
+				</button>
+			{/each}
+		</div>
+	{/if}
 </div>

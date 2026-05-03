@@ -1,24 +1,30 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
-	import SnippetGuard from './SnippetGuard.svelte';
+	import { Gamepad2, PartyPopper, Settings } from 'lucide-svelte';
+	import { resolve } from '$app/paths';
 
-	interface props {
-		left?: Snippet;
-		center?: Snippet;
-		right?: Snippet;
-	}
-
-	const { left, center, right }: props = $props();
+	const links = [
+		{
+			name: 'Games',
+			to: '/games',
+			icon: Gamepad2
+		},
+		{
+			name: 'Party',
+			to: '/party',
+			icon: PartyPopper
+		},
+		{
+			name: 'Settings',
+			to: '/settings',
+			icon: Settings
+		}
+	] as const;
 </script>
 
-<div class="relative flex w-screen">
-	<div class="flex flex-1 justify-start">
-		<SnippetGuard snippet={left} />
-	</div>
-	<div class="flex flex-1 justify-center">
-		<SnippetGuard snippet={center} />
-	</div>
-	<div class="flex flex-1 justify-end">
-		<SnippetGuard snippet={right} />
-	</div>
+<div class="w-full outline">
+	<ul class="flex justify-evenly">
+		{#each links as link (link.name)}
+			<li><a href={resolve(link.to)}><link.icon class="m-4 h-8 w-auto" /></a></li>
+		{/each}
+	</ul>
 </div>

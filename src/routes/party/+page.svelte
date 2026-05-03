@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
-	import { addPlayer, clearPlayers, getPlayers, removePlayer } from '$lib/state/party.svelte';
+	import { addPlayer, clearPlayers, removePlayer, players } from '$lib/state/party.svelte';
 	import { PlusIcon } from 'lucide-svelte';
 	import * as Card from '$lib/components/ui/card/index';
 	import * as Dialog from '$lib/components/ui/dialog/index';
@@ -9,7 +9,7 @@
 	let newPlayerName = $state('');
 	let isClearDialogOpen = $state(false);
 
-	const players = $derived(getPlayers());
+	const playerList = $derived(players.current);
 
 	function submit() {
 		if (!newPlayerName.trim()) return;
@@ -27,7 +27,7 @@
 <div class="flex flex-1 flex-col items-center justify-center">
 	<div class="relative w-dvw flex-1">
 		<div class="absolute inset-0 overflow-auto p-8">
-			{#each players as player (player.name)}
+			{#each playerList as player (player.name)}
 				<Card.Root class="mb-4">
 					<Card.Content class="flex items-center justify-between">
 						{player.name}

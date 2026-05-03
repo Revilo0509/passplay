@@ -8,12 +8,9 @@ export enum GameStage {
 
 export interface GameModule {
 	name: string;
+	description: string;
 	minPlayers: number;
-	stage: GameStage;
 	settings: Component;
 	game: Component;
 	end: Component;
-
-	StartGame(): void;
-	nextTurn(): void;
 }

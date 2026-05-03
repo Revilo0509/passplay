@@ -3,18 +3,10 @@
 	import { goto } from '$app/navigation';
 	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import { resolve } from '$app/paths';
-
-	const games = [
-		{
-			name: 'Impostor',
-			description:
-				"Everybody gets a word, execpt for the imposter. Which gets a hint. The goal is to communicate to everybody else that you know the word without revealing it to the imposter. At the end of the discussion everybody votes on who you think the imposter is. If the imposter ins't voted out the impostor wins.",
-			to: '/games/impostor'
-		}
-	] as const;
+	import { games } from '$lib/games';
 
 	async function handlePlay(game: (typeof games)[number]) {
-		await goto(resolve(game.to));
+		await goto(resolve(`/games/${game.name}`));
 	}
 </script>
 

@@ -1,13 +1,15 @@
 <script lang="ts">
-	import type { ImpostorGame } from './impostor.svelte';
+	import type { Player } from '$lib/state/party.svelte';
+	import { gameData, reset } from '$lib/state/game.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
 
-	interface props {
-		game: ImpostorGame;
-	}
-
-	let { game }: props = $props();
+	const data = $derived(gameData.current as { type: "impostor"; impostors: Player[] });
 </script>
 
-<span>
-	{game.impostors.map((p) => p.name).join(', ')}
-</span>
+<div class="flex flex-col gap-4 p-4">
+	<span>
+		{data.impostors.map((p) => p.name).join(', ')}
+	</span>
+
+	<Button onclick={reset}>Play Again</Button>
+</div>

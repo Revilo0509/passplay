@@ -1,77 +1,48 @@
-import { persisted } from 'svelte-persisted-store';
+import { PersistedState } from "runed";
 
 export type Player = {
 	name: string;
 };
 
-let players = $state<Player[]>([]);
-let currentIndex = $state<number>(0);
-
-const persistedPlayers = persisted<Player[]>('players', []);
-const persistedIndex = persisted<number>('currentPlayerIndex', 0);
-
-persistedPlayers.subscribe((value) => {
-	players = value;
-});
-
-persistedIndex.subscribe((value) => {
-	currentIndex = value;
-});
-
-function savePlayers() {
-	persistedPlayers.set(players);
-}
-
-function saveIndex() {
-	persistedIndex.set(currentIndex);
-}
+export const players = new PersistedState<Player[]>("players", []);
+export const currentPlayerIndex = new PersistedState<number>("currentPlayerIndex", 0);
 
 export function addPlayer(player: Player) {
-	if (players.some((p) => p.name === player.name)) return;
-	players = [...players, player];
-	savePlayers();
+	if (players.current.some((p) => p.name === player.name)) return;
+	players.current = [...players.current, player];
 }
 
 export function removePlayer(name: string) {
-	players = players.filter((p) => p.name !== name);
-	if (currentIndex >= players.length) {
-		currentIndex = 0;
+	players.current = players.current.filter((p) => p.name !== name);
+	if (currentPlayerIndex.current >= players.current.length) {
+		currentPlayerIndex.current = 0;
 	}
-	savePlayers();
-	saveIndex();
-}
-
-export function getPlayers() {
-	return players;
 }
 
 export function getPlayerCount() {
-	return players.length;
+	return players.current.length;
 }
 
 export function clearPlayers() {
-	players = [];
-	savePlayers();
+	players.current = [];
 }
 
 export function getRandomPlayer() {
-	if (players.length === 0) return undefined;
-	const index = Math.floor(Math.random() * players.length);
-	return players[index];
+	if (players.current.length === 0) return undefined;
+	const index = Math.floor(Math.random() * players.current.length);
+	return players.current[index];
 }
 
 export function setCurrentPlayerIndex(index: number) {
-	const safeIndex = ((index % players.length) + players.length) % players.length;
-	currentIndex = safeIndex;
-	saveIndex();
+	const safeIndex = ((index % players.current.length) + players.current.length) % players.current.length;
+	currentPlayerIndex.current = safeIndex;
 }
 
 export function getCurrentPlayer() {
-	return players.length === 0 ? undefined : players[currentIndex];
+	return players.current.length === 0 ? undefined : players.current[currentPlayerIndex.current];
 }
 
 export function nextPlayer() {
-	if (players.length === 0) return;
-	currentIndex = (currentIndex + 1) % players.length;
-	saveIndex();
+	if (players.current.length === 0) return;
+	currentPlayerIndex.current = (currentPlayerIndex.current + 1) % players.current.length;
 }

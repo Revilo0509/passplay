@@ -5,10 +5,9 @@
 	import { locales, localizeHref } from '$lib/paraglide/runtime';
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
-	import Nav from '$lib/components/Nav.svelte';
 	import App from '$lib/components/App.svelte';
 	import { ModeWatcher } from 'mode-watcher';
-	import OptionsDrawer from '$lib/components/OptionsDrawer.svelte';
+	import Nav from '$lib/components/Nav.svelte';
 
 	let { children } = $props();
 </script>
@@ -19,12 +18,8 @@
 
 <ModeWatcher />
 <App>
-	{#snippet header()}
-		<Nav>
-			{#snippet right()}
-				<OptionsDrawer />
-			{/snippet}
-		</Nav>
+	{#snippet footer()}
+		<Nav />
 	{/snippet}
 
 	{@render children()}
