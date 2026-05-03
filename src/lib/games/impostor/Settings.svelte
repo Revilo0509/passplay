@@ -5,21 +5,24 @@
 	import { fetchCategories } from '$lib/services/api';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { onMount } from 'svelte';
+	import Center from '$lib/components/Center.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	let maxPlayers = $derived(getPlayerCount());
 
 	let impostorCount = $state(1);
-	let selectedCategory = $state('');
+	let selectedCategory = $state('All');
 	let categoryList = $state<string[]>([]);
 	let isLoading = $state(true);
 
 	onMount(async () => {
-		categoryList = await fetchCategories();
+		const categories = await fetchCategories();
+		categoryList = ['All', ...categories];
 		isLoading = false;
 	});
 
 	const triggerContent = $derived(
-		categoryList.find((f: string) => f === selectedCategory) ?? 'Select a category'
+		categoryList.find((f: string) => f === selectedCategory) ?? 'All'
 	);
 
 	function handleStart() {
@@ -30,17 +33,19 @@
 			impostors.push(allPlayers.splice(index, 1)[0]);
 		}
 
+		const category = selectedCategory === 'All' ? undefined : selectedCategory;
+
 		start({
 			type: 'impostor',
 			impostorCount,
-			selectedCategory,
+			selectedCategory: category,
 			impostors
 		});
 		gameType.current = 'impostor';
 	}
 </script>
 
-<div class="flex flex-col gap-4 p-4">
+<div class="flex flex-1 flex-col justify-between gap-4 p-4">
 	<div>
 		<label>
 			Number of Impostors:
@@ -50,7 +55,9 @@
 			Category:
 			<div class="pt-4">
 				{#if isLoading}
-					<p>Loading categories...</p>
+					<Center>
+						<p>Loading categories...</p>
+					</Center>
 				{:else}
 					<Select.Root type="single" bind:value={selectedCategory}>
 						<Select.Trigger class="w-full">{triggerContent}</Select.Trigger>
@@ -67,7 +74,5 @@
 		</label>
 	</div>
 
-	<button class="mt-auto" disabled={!selectedCategory || maxPlayers < 3} onclick={handleStart}>
-		Continue
-	</button>
+	<Button onclick={handleStart}>Continue</Button>
 </div>

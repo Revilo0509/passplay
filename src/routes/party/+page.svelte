@@ -5,6 +5,7 @@
 	import { PlusIcon } from 'lucide-svelte';
 	import * as Card from '$lib/components/ui/card/index';
 	import * as Dialog from '$lib/components/ui/dialog/index';
+	import Center from '$lib/components/Center.svelte';
 
 	let newPlayerName = $state('');
 	let isClearDialogOpen = $state(false);
@@ -24,7 +25,7 @@
 	}
 </script>
 
-<div class="flex flex-1 flex-col items-center justify-center">
+<Center>
 	<div class="relative w-dvw flex-1">
 		<div class="absolute inset-0 overflow-auto p-8">
 			{#each playerList as player (player.name)}
@@ -58,4 +59,4 @@
 			</Dialog.Root>
 		</div>
 	</div>
-</div>
+</Center>

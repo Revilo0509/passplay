@@ -6,9 +6,14 @@
 	import * as Card from '$lib/components/ui/card/index';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index';
 	import { onMount } from 'svelte';
+	import Center from '$lib/components/Center.svelte';
+	import { SvelteSet } from 'svelte/reactivity';
+	import { Check } from 'lucide-svelte';
 
 	const playerList = $derived(players.current);
-	const data = $derived(gameData.current as { type: "impostor"; selectedCategory: string; impostors: Player[] });
+	const data = $derived(
+		gameData.current as { type: 'impostor'; selectedCategory?: string; impostors: Player[] }
+	);
 
 	let currentWord = $state<{ word: string; hint: string } | null>(null);
 	let isLoading = $state(true);
@@ -18,20 +23,26 @@
 		isLoading = false;
 	});
 
-	let selectedPlayer = $state<string | null>(null);
+	let selectedPlayer = $state<Player>({ name: '' });
 	let confirmDialogOpen = $state(false);
 	let revealDialogOpen = $state(false);
+	let shownPlayers = new SvelteSet<string>();
 
-	function openConfirm(name: string) {
-		selectedPlayer = name;
+	function openConfirm(player: Player) {
+		selectedPlayer = player;
 		confirmDialogOpen = true;
 	}
 
-	let currentReveal = $state<"word" | "hint">("word");
+	let currentReveal = $state<'word' | 'hint'>('word');
 
 	function confirmShow() {
-		const isImpostor = data.impostors.some((i) => i.name === selectedPlayer);
-		currentReveal = isImpostor ? "hint" : "word";
+		if (!selectedPlayer) return;
+
+		const isImpostor = data.impostors.some((i) => i.name === selectedPlayer.name);
+		currentReveal = isImpostor ? 'hint' : 'word';
+
+		shownPlayers.add(selectedPlayer.name);
+
 		confirmDialogOpen = false;
 		setTimeout(() => (revealDialogOpen = true), 0);
 	}
@@ -48,9 +59,7 @@
 			</AlertDialog.Header>
 			<AlertDialog.Footer>
 				<AlertDialog.Cancel>Continue Playing</AlertDialog.Cancel>
-				<AlertDialog.Action variant="destructive" onclick={end}>
-					End game
-				</AlertDialog.Action>
+				<AlertDialog.Action variant="destructive" onclick={end}>End game</AlertDialog.Action>
 			</AlertDialog.Footer>
 		</AlertDialog.Content>
 	</AlertDialog.Root>
@@ -58,7 +67,7 @@
 	<AlertDialog.Root bind:open={confirmDialogOpen}>
 		<AlertDialog.Content>
 			<AlertDialog.Header class="text-xl">
-				Are you sure you want to show {selectedPlayer}?
+				Are you sure you want to show {selectedPlayer.name}?
 			</AlertDialog.Header>
 			<AlertDialog.Footer>
 				<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
@@ -69,7 +78,7 @@
 
 	<AlertDialog.Root bind:open={revealDialogOpen}>
 		<AlertDialog.Content>
-			{#if currentReveal === "word"}
+			{#if currentReveal === 'word'}
 				<span>Word: {currentWord?.word}</span>
 			{:else}
 				<span class="text-red-500">You are the impostor.</span>
@@ -82,14 +91,19 @@
 	</AlertDialog.Root>
 
 	{#if isLoading}
-		<p>Loading...</p>
+		<Center>
+			<p>Loading...</p>
+		</Center>
 	{:else}
 		<div class="flex flex-col gap-4">
 			{#each playerList as player (player.name)}
-				<button onclick={() => openConfirm(player.name)} class="w-full text-left">
+				<button onclick={() => openConfirm(player)} class="w-full text-left disabled:opacity-50">
 					<Card.Root>
-						<Card.Content>
-							<span>{player.name}</span>
+						<Card.Content class="flex items-center justify-between">
+							<span class="h-6">{player.name}</span>
+							{#if shownPlayers.has(player.name)}
+								<Check />
+							{/if}
 						</Card.Content>
 					</Card.Root>
 				</button>
