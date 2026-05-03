@@ -12,7 +12,12 @@
 
 	const playerList = $derived(players.current);
 	const data = $derived(
-		gameData.current as { type: 'impostor'; selectedCategory?: string; impostors: Player[] }
+		gameData.current as {
+			type: 'impostor';
+			selectedCategory?: string;
+			impostors: Player[];
+			showHintToImpostor: boolean;
+		}
 	);
 
 	let currentWord = $state<{ word: string; hint: string } | null>(null);
@@ -82,7 +87,9 @@
 				<span>Word: {currentWord?.word}</span>
 			{:else}
 				<span class="text-red-500">You are the impostor.</span>
-				<span class="opacity-75">Hint: {currentWord?.hint}</span>
+				{#if data.showHintToImpostor}
+					<span class="opacity-75">Hint: {currentWord?.hint}</span>
+				{/if}
 			{/if}
 			<AlertDialog.Footer>
 				<AlertDialog.Cancel variant="default">Okay.</AlertDialog.Cancel>

@@ -1,16 +1,22 @@
-import { PersistedState } from "runed";
-import { GameStage } from "$lib/games/GameModule";
-import type { Player } from "./party.svelte";
+import { PersistedState } from 'runed';
+import { GameStage } from '$lib/games/GameModule';
+import type { Player } from './party.svelte';
 
 export type GameData =
-	| { type: "impostor"; impostorCount: number; selectedCategory: string; impostors: Player[] }
+	| {
+			type: 'impostor';
+			impostorCount: number;
+			selectedCategory: string;
+			impostors: Player[];
+			impostorsKnowEachOther: boolean;
+			showHintToImpostor: boolean;
+			showCategoryToImpostor: boolean;
+	  }
 	| { type: string; [key: string]: unknown };
 
-export const stage = new PersistedState<GameStage>("game-stage", GameStage.Settings);
+export const stage = new PersistedState<GameStage>('game-stage', GameStage.Settings);
 
-export const gameType = new PersistedState<string>("game-type", "");
-
-export const gameData = new PersistedState<GameData>("game-data", { type: "" });
+export const gameData = new PersistedState<GameData>('game-data', { type: '' });
 
 export function start(data: GameData) {
 	gameData.current = data;
@@ -23,6 +29,5 @@ export function end() {
 
 export function reset() {
 	stage.current = GameStage.Settings;
-	gameData.current = { type: "" };
-	gameType.current = "";
+	gameData.current = { type: '' };
 }

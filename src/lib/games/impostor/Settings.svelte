@@ -1,12 +1,14 @@
 <script lang="ts">
 	import NumberInput from '$lib/components/NumberInput.svelte';
 	import { getPlayerCount, players } from '$lib/state/party.svelte';
-	import { gameType, start } from '$lib/state/game.svelte';
+	import { start } from '$lib/state/game.svelte';
 	import { fetchCategories } from '$lib/services/api';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { onMount } from 'svelte';
 	import Center from '$lib/components/Center.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import Switch from '$lib/components/ui/switch/switch.svelte';
+	import { PersistedState } from 'runed';
 
 	let maxPlayers = $derived(getPlayerCount());
 
@@ -14,6 +16,16 @@
 	let selectedCategory = $state('All');
 	let categoryList = $state<string[]>([]);
 	let isLoading = $state(true);
+
+	let impostorsKnowEachOther = new PersistedState<boolean>(
+		'impostor-impostorsKnowEachOther',
+		false
+	);
+	let showHintToImpostor = new PersistedState<boolean>('impostor-showHintToImpostor', false);
+	let showCategoryToImpostor = new PersistedState<boolean>(
+		'impostor-showCategoryToImpostor',
+		false
+	);
 
 	onMount(async () => {
 		const categories = await fetchCategories();
@@ -39,9 +51,11 @@
 			type: 'impostor',
 			impostorCount,
 			selectedCategory: category,
-			impostors
+			impostors,
+			impostorsKnowEachOther,
+			showHintToImpostor,
+			showCategoryToImpostor
 		});
-		gameType.current = 'impostor';
 	}
 </script>
 
@@ -71,6 +85,19 @@
 					</Select.Root>
 				{/if}
 			</div>
+		</label>
+		<h1 class="pt-6 text-xl font-bold">Impostor Settings</h1>
+		<label class="mt-6 flex items-center">
+			Impostors know each other:
+			<Switch class="ml-4" bind:checked={impostorsKnowEachOther.current} />
+		</label>
+		<label class="mt-6 flex items-center">
+			Show hint to impostor:
+			<Switch class="ml-4" bind:checked={showHintToImpostor.current} />
+		</label>
+		<label class="mt-6 flex items-center">
+			Show category to impostor:
+			<Switch class="ml-4" bind:checked={showCategoryToImpostor.current} />
 		</label>
 	</div>
 
