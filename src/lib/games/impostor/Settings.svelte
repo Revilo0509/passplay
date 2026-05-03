@@ -7,6 +7,8 @@
 	import { onMount } from 'svelte';
 	import Center from '$lib/components/Center.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import * as m from '$lib/paraglide/messages';
+	import { getLocale } from '$lib/paraglide/runtime';
 
 	let maxPlayers = $derived(getPlayerCount());
 
@@ -14,15 +16,19 @@
 	let selectedCategory = $state('All');
 	let categoryList = $state<string[]>([]);
 	let isLoading = $state(true);
+	let currentLocale = $derived(getLocale());
+
+	const allCategoryLabel = $derived(m['impostor.settings.all']());
 
 	onMount(async () => {
-		const categories = await fetchCategories();
-		categoryList = ['All', ...categories];
+		const categories = await fetchCategories(currentLocale);
+		categoryList = [allCategoryLabel, ...categories];
+		selectedCategory = allCategoryLabel;
 		isLoading = false;
 	});
 
 	const triggerContent = $derived(
-		categoryList.find((f: string) => f === selectedCategory) ?? 'All'
+		categoryList.find((f: string) => f === selectedCategory) ?? allCategoryLabel
 	);
 
 	function handleStart() {
@@ -33,7 +39,7 @@
 			impostors.push(allPlayers.splice(index, 1)[0]);
 		}
 
-		const category = selectedCategory === 'All' ? undefined : selectedCategory;
+		const category = selectedCategory === allCategoryLabel ? undefined : selectedCategory;
 
 		start({
 			type: 'impostor',
@@ -48,15 +54,15 @@
 <div class="flex flex-1 flex-col justify-between gap-4 p-4">
 	<div>
 		<label>
-			Number of Impostors:
+			{m['impostor.settings.impostorCount']()}
 			<NumberInput bind:value={impostorCount} min={1} max={maxPlayers} />
 		</label>
 		<label>
-			Category:
+			{m['impostor.settings.category']()}
 			<div class="pt-4">
 				{#if isLoading}
 					<Center>
-						<p>Loading categories...</p>
+						<p>{m['impostor.settings.loadingCategories']()}</p>
 					</Center>
 				{:else}
 					<Select.Root type="single" bind:value={selectedCategory}>
@@ -74,5 +80,5 @@
 		</label>
 	</div>
 
-	<Button onclick={handleStart}>Continue</Button>
+	<Button onclick={handleStart}>{m['impostor.settings.continue']()}</Button>
 </div>

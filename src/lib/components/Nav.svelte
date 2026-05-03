@@ -1,20 +1,21 @@
 <script lang="ts">
 	import { Gamepad2, PartyPopper, Settings } from 'lucide-svelte';
 	import { resolve } from '$app/paths';
+	import * as m from '$lib/paraglide/messages';
 
 	const links = [
 		{
-			name: 'Games',
+			name: m['nav.games'](),
 			to: '/games',
 			icon: Gamepad2
 		},
 		{
-			name: 'Party',
+			name: m['nav.party'](),
 			to: '/party',
 			icon: PartyPopper
 		},
 		{
-			name: 'Settings',
+			name: m['nav.settings'](),
 			to: '/settings',
 			icon: Settings
 		}

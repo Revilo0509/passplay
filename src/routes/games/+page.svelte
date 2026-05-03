@@ -5,6 +5,23 @@
 	import { resolve } from '$app/paths';
 	import { games } from '$lib/games';
 	import { User } from 'lucide-svelte';
+	import * as m from '$lib/paraglide/messages';
+	import type { GameModule } from '$lib/games/GameModule';
+
+	type MessageFunc = () => string;
+	const messages = m as unknown as Record<string, MessageFunc>;
+
+	function getGameTitle(game: GameModule): string {
+		const key = `${game.name}.name`;
+		return messages[key]?.() ?? game.name;
+	}
+
+	function getGameDescription(game: GameModule): string {
+		if (game.descriptionKey) {
+			return messages[game.descriptionKey]?.() ?? game.description ?? '';
+		}
+		return game.description ?? '';
+	}
 
 	async function handlePlay(game: (typeof games)[number]) {
 		await goto(resolve(`/games/${game.name}`));
@@ -16,22 +33,22 @@
 		<Card.Root class="w-[calc(100dvw---spacing(16))] max-w-none">
 			<Card.Content class="flex flex-col">
 				<div class="flex items-center justify-between">
-					{gameItem.name}
+					{getGameTitle(gameItem)}
 					<div class="flex items-center">
 						<div class="flex p-4">
 							<User />
-							{gameItem.minPlayers}
+							{m['games.minPlayers']({ count: gameItem.minPlayers })}
 						</div>
 						<button
 							onclick={() => handlePlay(gameItem)}
 							class={buttonVariants({ variant: 'default' })}
 						>
-							Play
+							{m['games.play']()}
 						</button>
 					</div>
 				</div>
 				<span class="mt-2 opacity-75">
-					{gameItem.description}
+					{getGameDescription(gameItem)}
 				</span>
 			</Card.Content>
 		</Card.Root>

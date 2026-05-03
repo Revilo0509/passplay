@@ -1,8 +1,11 @@
 const DB_NAME = 'passplay-words';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_NAME = 'words';
+const TRANSLATIONS_STORE = 'translations';
 
-interface Word {
+export type Locale = 'en' | 'sv';
+
+export interface Word {
 	word: string;
 	hint: string;
 	category: string;
@@ -10,10 +13,17 @@ interface Word {
 	syllableCount?: number;
 }
 
-interface CachedData {
+export interface CachedData {
 	categories: string[];
 	words: Word[];
 	cachedAt: number;
+}
+
+export interface TranslatedData {
+	categories: string[];
+	words: Word[];
+	translatedAt: number;
+	locale: string;
 }
 
 let db: IDBDatabase | null = null;
@@ -35,8 +45,38 @@ async function openDB(): Promise<IDBDatabase> {
 			if (!database.objectStoreNames.contains(STORE_NAME)) {
 				database.createObjectStore(STORE_NAME);
 			}
+			if (!database.objectStoreNames.contains(TRANSLATIONS_STORE)) {
+				database.createObjectStore(TRANSLATIONS_STORE);
+			}
 		};
 	});
+}
+
+export async function getTranslatedData(locale: Locale): Promise<TranslatedData | null> {
+	const database = await openDB();
+	
+	if (!database.objectStoreNames.contains(TRANSLATIONS_STORE)) {
+		return null;
+	}
+	
+	return new Promise((resolve, reject) => {
+		const transaction = database.transaction([TRANSLATIONS_STORE], 'readonly');
+		const store = transaction.objectStore(TRANSLATIONS_STORE);
+		const request = store.get(locale);
+
+		request.onerror = () => reject(request.error);
+		request.onsuccess = () => resolve(request.result || null);
+	});
+}
+
+export async function hasTranslations(locale: Locale): Promise<boolean> {
+	if (locale === 'en') return true;
+	try {
+		const data = await getTranslatedData(locale);
+		return data !== null && data.words.length > 0;
+	} catch {
+		return false;
+	}
 }
 
 export async function saveToCache(data: CachedData): Promise<void> {
@@ -45,6 +85,23 @@ export async function saveToCache(data: CachedData): Promise<void> {
 		const transaction = database.transaction([STORE_NAME], 'readwrite');
 		const store = transaction.objectStore(STORE_NAME);
 		const request = store.put(data, 'all-words');
+
+		request.onerror = () => reject(request.error);
+		request.onsuccess = () => resolve();
+	});
+}
+
+export async function saveTranslatedData(data: TranslatedData): Promise<void> {
+	const database = await openDB();
+	
+	if (!database.objectStoreNames.contains(TRANSLATIONS_STORE)) {
+		throw new Error('Translations store not found');
+	}
+	
+	return new Promise((resolve, reject) => {
+		const transaction = database.transaction([TRANSLATIONS_STORE], 'readwrite');
+		const store = transaction.objectStore(TRANSLATIONS_STORE);
+		const request = store.put(data, data.locale);
 
 		request.onerror = () => reject(request.error);
 		request.onsuccess = () => resolve();
@@ -72,12 +129,30 @@ export async function isCacheValid(): Promise<boolean> {
 	return now - data.cachedAt < ONE_DAY;
 }
 
-export async function getCategories(): Promise<string[]> {
+export async function getCategories(locale: Locale = 'en'): Promise<string[]> {
+	if (locale === 'sv') {
+		const translatedData = await getTranslatedData('sv');
+		if (translatedData && translatedData.categories.length > 0) {
+			return translatedData.categories;
+		}
+	}
+
 	const data = await getFromCache();
 	return data?.categories ?? [];
 }
 
-export async function getWord(category?: string): Promise<Word | null> {
+export async function getWord(category?: string, locale: Locale = 'en'): Promise<Word | null> {
+	if (locale === 'sv') {
+		const translatedData = await getTranslatedData('sv');
+		if (translatedData && translatedData.words.length > 0) {
+			const words = category
+				? translatedData.words.filter((w) => w.category === category)
+				: translatedData.words;
+			if (words.length === 0) return null;
+			return words[Math.floor(Math.random() * words.length)];
+		}
+	}
+
 	const data = await getFromCache();
 	if (!data || !data.words.length) return null;
 
@@ -124,5 +199,17 @@ export async function initCache(): Promise<void> {
 	const isValid = await isCacheValid();
 	if (!isValid) {
 		await fetchAndCacheAllWords();
+	}
+}
+
+export async function ensureTranslations(locale: Locale): Promise<void> {
+	if (locale === 'en') return;
+	if (await hasTranslations(locale)) return;
+
+	try {
+		const { ensureSwedishTranslations } = await import('$lib/translateAllWords');
+		await ensureSwedishTranslations();
+	} catch (e) {
+		console.warn('Failed to translate words to Swedish:', e);
 	}
 }

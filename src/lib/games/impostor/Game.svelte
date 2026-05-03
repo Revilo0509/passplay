@@ -9,6 +9,8 @@
 	import Center from '$lib/components/Center.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { Check } from 'lucide-svelte';
+	import * as m from '$lib/paraglide/messages';
+	import { getLocale } from '$lib/paraglide/runtime';
 
 	const playerList = $derived(players.current);
 	const data = $derived(
@@ -17,9 +19,10 @@
 
 	let currentWord = $state<{ word: string; hint: string } | null>(null);
 	let isLoading = $state(true);
+	let currentLocale = $derived(getLocale());
 
 	onMount(async () => {
-		currentWord = await fetchWord(data.selectedCategory);
+		currentWord = await fetchWord(data.selectedCategory, currentLocale);
 		isLoading = false;
 	});
 
@@ -51,15 +54,17 @@
 <div class="flex flex-col gap-4 p-4">
 	<AlertDialog.Root>
 		<AlertDialog.Trigger class={buttonVariants({ variant: 'destructive' })}>
-			End Game
+			{m['impostor.game.endGame']()}
 		</AlertDialog.Trigger>
 		<AlertDialog.Content>
 			<AlertDialog.Header class="text-xl">
-				Are you sure you want to end the game?
+				{m['impostor.game.endGameConfirm']()}
 			</AlertDialog.Header>
 			<AlertDialog.Footer>
-				<AlertDialog.Cancel>Continue Playing</AlertDialog.Cancel>
-				<AlertDialog.Action variant="destructive" onclick={end}>End game</AlertDialog.Action>
+				<AlertDialog.Cancel>{m['impostor.game.continuePlaying']()}</AlertDialog.Cancel>
+				<AlertDialog.Action variant="destructive" onclick={end}
+					>{m['impostor.game.endGame']()}</AlertDialog.Action
+				>
 			</AlertDialog.Footer>
 		</AlertDialog.Content>
 	</AlertDialog.Root>
@@ -67,11 +72,11 @@
 	<AlertDialog.Root bind:open={confirmDialogOpen}>
 		<AlertDialog.Content>
 			<AlertDialog.Header class="text-xl">
-				Are you sure you want to show {selectedPlayer.name}?
+				{m['impostor.game.showPlayer']({ player: selectedPlayer.name })}
 			</AlertDialog.Header>
 			<AlertDialog.Footer>
-				<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-				<AlertDialog.Action onclick={confirmShow}>Show</AlertDialog.Action>
+				<AlertDialog.Cancel>{m['party.cancel']()}</AlertDialog.Cancel>
+				<AlertDialog.Action onclick={confirmShow}>{m['impostor.game.show']()}</AlertDialog.Action>
 			</AlertDialog.Footer>
 		</AlertDialog.Content>
 	</AlertDialog.Root>
@@ -79,20 +84,20 @@
 	<AlertDialog.Root bind:open={revealDialogOpen}>
 		<AlertDialog.Content>
 			{#if currentReveal === 'word'}
-				<span>Word: {currentWord?.word}</span>
+				<span>{m['impostor.game.word']()} {currentWord?.word}</span>
 			{:else}
-				<span class="text-red-500">You are the impostor.</span>
-				<span class="opacity-75">Hint: {currentWord?.hint}</span>
+				<span class="text-red-500">{m['impostor.game.youAreImpostor']()}</span>
+				<span class="opacity-75">{m['impostor.game.hint']()} {currentWord?.hint}</span>
 			{/if}
 			<AlertDialog.Footer>
-				<AlertDialog.Cancel variant="default">Okay.</AlertDialog.Cancel>
+				<AlertDialog.Cancel variant="default">{m['impostor.game.okay']()}</AlertDialog.Cancel>
 			</AlertDialog.Footer>
 		</AlertDialog.Content>
 	</AlertDialog.Root>
 
 	{#if isLoading}
 		<Center>
-			<p>Loading...</p>
+			<p>{m['impostor.game.loading']()}</p>
 		</Center>
 	{:else}
 		<div class="flex flex-col gap-4">

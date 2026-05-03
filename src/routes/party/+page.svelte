@@ -6,6 +6,7 @@
 	import * as Card from '$lib/components/ui/card/index';
 	import * as Dialog from '$lib/components/ui/dialog/index';
 	import Center from '$lib/components/Center.svelte';
+	import * as m from '$lib/paraglide/messages';
 
 	let newPlayerName = $state('');
 	let isClearDialogOpen = $state(false);
@@ -33,7 +34,9 @@
 					<Card.Content class="flex items-center justify-between">
 						{player.name}
 
-						<Button variant="destructive" onclick={() => removePlayer(player.name)}>Remove</Button>
+						<Button variant="destructive" onclick={() => removePlayer(player.name)}
+							>{m['party.remove']()}</Button
+						>
 					</Card.Content>
 				</Card.Root>
 			{/each}
@@ -42,18 +45,18 @@
 		<div
 			class="absolute right-0 bottom-0 left-0 flex gap-2 rounded-t-2xl bg-background p-4 outline"
 		>
-			<Input type="text" bind:value={newPlayerName} />
+			<Input type="text" bind:value={newPlayerName} placeholder={m['party.addPlayer']()} />
 			<Button onclick={submit}>
 				<PlusIcon />
 			</Button>
 
 			<Dialog.Root bind:open={isClearDialogOpen}>
-				<Dialog.Trigger><Button>Clear</Button></Dialog.Trigger>
+				<Dialog.Trigger><Button>{m['party.clear']()}</Button></Dialog.Trigger>
 				<Dialog.Content>
-					<Dialog.Header class="text-xl font-extrabold">Are You Sure?</Dialog.Header>
+					<Dialog.Header class="text-xl font-extrabold">{m['party.clearConfirm']()}</Dialog.Header>
 					<div class="flex justify-end gap-4">
-						<Button variant="destructive" onclick={clear}>Yes</Button>
-						<Dialog.Close>Cancel</Dialog.Close>
+						<Button variant="destructive" onclick={clear}>{m['party.yes']()}</Button>
+						<Dialog.Close>{m['party.cancel']()}</Dialog.Close>
 					</div>
 				</Dialog.Content>
 			</Dialog.Root>

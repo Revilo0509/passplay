@@ -1,11 +1,11 @@
-import { PersistedState } from "runed";
+import { PersistedState } from 'runed';
 
 export type Player = {
 	name: string;
 };
 
-export const players = new PersistedState<Player[]>("players", []);
-export const currentPlayerIndex = new PersistedState<number>("currentPlayerIndex", 0);
+export const players = new PersistedState<Player[]>('players', []);
+export const currentPlayerIndex = new PersistedState<number>('currentPlayerIndex', 0);
 
 export function addPlayer(player: Player) {
 	if (players.current.some((p) => p.name === player.name)) return;
@@ -34,7 +34,8 @@ export function getRandomPlayer() {
 }
 
 export function setCurrentPlayerIndex(index: number) {
-	const safeIndex = ((index % players.current.length) + players.current.length) % players.current.length;
+	const safeIndex =
+		((index % players.current.length) + players.current.length) % players.current.length;
 	currentPlayerIndex.current = safeIndex;
 }
 

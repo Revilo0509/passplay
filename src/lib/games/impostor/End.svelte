@@ -3,20 +3,20 @@
 	import { gameData, reset } from '$lib/state/game.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Center from '$lib/components/Center.svelte';
+	import * as m from '$lib/paraglide/messages';
 
 	const data = $derived(gameData.current as { type: 'impostor'; impostors: Player[] });
 	const impostors = $derived(data.impostors.map((p) => p.name));
 
 	const charDelay = 300;
+	const impostorLabel = $derived(
+		impostors.length > 1 ? m['impostor.end.impostors']() : m['impostor.end.impostor']()
+	);
 </script>
 
 <Center>
 	<span class="text-2xl font-extrabold text-red-500">
-		{#if impostors.length > 1}
-			The impostors were
-		{:else}
-			The impostor was
-		{/if}
+		{impostorLabel}
 	</span>
 
 	<div class="m-8 space-y-4">
@@ -34,7 +34,7 @@
 		{/each}
 	</div>
 
-	<Button onclick={reset}>Play Again</Button>
+	<Button onclick={reset}>{m['impostor.end.playAgain']()}</Button>
 </Center>
 
 <style>

@@ -8,7 +8,8 @@ export enum GameStage {
 
 export interface GameModule {
 	name: string;
-	description: string;
+	description?: string;
+	descriptionKey?: string;
 	minPlayers: number;
 	settings: Component;
 	game: Component;
