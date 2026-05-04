@@ -6,6 +6,7 @@
 	import * as Card from '$lib/components/ui/card/index';
 	import * as Dialog from '$lib/components/ui/dialog/index';
 	import Center from '$lib/components/Center.svelte';
+	import { slide } from 'svelte/transition';
 
 	let newPlayerName = $state('');
 	let isClearDialogOpen = $state(false);
@@ -27,15 +28,18 @@
 
 <Center>
 	<div class="relative w-dvw flex-1">
-		<div class="absolute inset-0 overflow-auto p-8">
+		<div class="absolute inset-0 overflow-auto p-8 pb-16">
 			{#each playerList as player (player.name)}
-				<Card.Root class="mb-4">
-					<Card.Content class="flex items-center justify-between">
-						{player.name}
+				<div transition:slide>
+					<Card.Root class="mb-4">
+						<Card.Content class="flex items-center justify-between">
+							{player.name}
 
-						<Button variant="destructive" onclick={() => removePlayer(player.name)}>Remove</Button>
-					</Card.Content>
-				</Card.Root>
+							<Button variant="destructive" onclick={() => removePlayer(player.name)}>Remove</Button
+							>
+						</Card.Content>
+					</Card.Root>
+				</div>
 			{/each}
 		</div>
 
