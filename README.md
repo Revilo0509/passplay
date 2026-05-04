@@ -1,42 +1,20 @@
-# sv
+# PassPlay
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A Sveltekit PWA with party games playable on one phone. Currently available at <https://passplay.revilo0509.net>
 
-## Creating a project
+Currently available games:
 
-If you're seeing this, you've probably already done this step. Congrats!
+- Impostor
 
-```sh
-# create a new project
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-pnpm dlx sv@0.15.2 create --template minimal --types ts --add prettier eslint tailwindcss="plugins:none" sveltekit-adapter="adapter:node" paraglide="languageTags:en, sv+demo:no" --install pnpm ./
-```
+More games are not planned but feel free to create a PR to add new ones.
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+```bash
+git clone https://github.com/revilo0509/passplay.git
+cd passplay
+pnpm install
+pnpm run dev
 ```
 
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+The app is now available at localhost:5713.
