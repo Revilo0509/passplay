@@ -1,15 +1,22 @@
-import { PersistedState } from "runed";
+import { PersistedState } from 'runed';
 
 export type Player = {
 	name: string;
 };
 
-export const players = new PersistedState<Player[]>("players", []);
-export const currentPlayerIndex = new PersistedState<number>("currentPlayerIndex", 0);
+export const players = new PersistedState<Player[]>('players', []);
+export const currentPlayerIndex = new PersistedState<number>('currentPlayerIndex', 0);
 
-export function addPlayer(player: Player) {
-	if (players.current.some((p) => p.name === player.name)) return;
+/**
+ * Adds a player to the players list if the name is unique.
+ *
+ * @param {Player} player - The player object to add.
+ * @returns {boolean} Returns false if the player was added, true if a player with the same name already exists.
+ */
+export function addPlayer(player: Player): boolean {
+	if (players.current.some((p) => p.name === player.name)) return true;
 	players.current = [...players.current, player];
+	return false;
 }
 
 export function removePlayer(name: string) {
@@ -34,7 +41,8 @@ export function getRandomPlayer() {
 }
 
 export function setCurrentPlayerIndex(index: number) {
-	const safeIndex = ((index % players.current.length) + players.current.length) % players.current.length;
+	const safeIndex =
+		((index % players.current.length) + players.current.length) % players.current.length;
 	currentPlayerIndex.current = safeIndex;
 }
 

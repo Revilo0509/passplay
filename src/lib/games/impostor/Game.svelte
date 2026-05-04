@@ -101,19 +101,21 @@
 			<p>Loading...</p>
 		</Center>
 	{:else}
-		<div class="flex flex-col gap-4">
-			{#each playerList as player (player.name)}
-				<button onclick={() => openConfirm(player)} class="w-full text-left disabled:opacity-50">
-					<Card.Root>
-						<Card.Content class="flex items-center justify-between">
-							<span class="h-6">{player.name}</span>
-							{#if shownPlayers.has(player.name)}
-								<Check />
-							{/if}
-						</Card.Content>
-					</Card.Root>
-				</button>
-			{/each}
+		<div class="relative flex flex-1">
+			<div class="absolute overflow-auto">
+				{#each playerList as player (player.name)}
+					<button onclick={() => openConfirm(player)} class="w-full text-left disabled:opacity-50">
+						<Card.Root class="mb-4">
+							<Card.Content class="flex items-center justify-between">
+								<span class="h-6">{player.name}</span>
+								{#if shownPlayers.has(player.name)}
+									<Check />
+								{/if}
+							</Card.Content>
+						</Card.Root>
+					</button>
+				{/each}
+			</div>
 		</div>
 	{/if}
 </div>

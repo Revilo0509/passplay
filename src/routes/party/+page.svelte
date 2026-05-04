@@ -16,7 +16,8 @@
 	function submit() {
 		if (!newPlayerName.trim()) return;
 
-		addPlayer({ name: newPlayerName });
+		let error = addPlayer({ name: newPlayerName });
+		if (error) return;
 		newPlayerName = '';
 	}
 
@@ -46,7 +47,12 @@
 		<div
 			class="absolute right-0 bottom-0 left-0 flex gap-2 rounded-t-2xl bg-background p-4 outline"
 		>
-			<Input type="text" bind:value={newPlayerName} />
+			<Input
+				type="text"
+				bind:value={newPlayerName}
+				onkeydown={(e) => e.key === 'Enter' && submit()}
+			/>
+
 			<Button onclick={submit}>
 				<PlusIcon />
 			</Button>
