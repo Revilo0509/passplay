@@ -19,7 +19,6 @@
 		"@eslint/compat": "latest",
 		"@eslint/js": "latest",
 		"@fontsource-variable/inter": "^5.2.8",
-		"@inlang/paraglide-js": "^2.18.0",
 		"@internationalized/date": "^3.12.1",
 		"@lucide/svelte": "^1.14.0",
 		"@sveltejs/adapter-node": "^5.5.4",
