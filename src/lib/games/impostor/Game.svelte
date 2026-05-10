@@ -102,7 +102,7 @@
 		</Center>
 	{:else}
 		<div class="relative flex flex-1">
-			<div class="absolute overflow-auto">
+			<div class="absolute w-full overflow-auto">
 				{#each playerList as player (player.name)}
 					<button onclick={() => openConfirm(player)} class="w-full text-left disabled:opacity-50">
 						<Card.Root class="mb-4">
